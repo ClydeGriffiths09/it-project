@@ -1,6 +1,6 @@
 BEGIN;
 
-CREATE TABLE restaurant (
+CREATE TABLE IF NOT EXISTS restaurant (
     id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name text NOT NULL CHECK (btrim(name) <> ''),
     description text NOT NULL DEFAULT '',
@@ -10,7 +10,7 @@ CREATE TABLE restaurant (
     email text
 );
 
-CREATE TABLE restaurant_photos (
+CREATE TABLE IF NOT EXISTS restaurant_photos (
     id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     restaurant_id bigint NOT NULL REFERENCES restaurant(id) ON DELETE CASCADE,
     object_key text NOT NULL UNIQUE,
@@ -18,13 +18,13 @@ CREATE TABLE restaurant_photos (
     position integer NOT NULL DEFAULT 0 CHECK (position >= 0)
 );
 
-CREATE TABLE categories (
+CREATE TABLE IF NOT EXISTS categories (
     id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name text NOT NULL UNIQUE CHECK (btrim(name) <> ''),
     position integer NOT NULL DEFAULT 0 CHECK (position >= 0)
 );
 
-CREATE TABLE dishes (
+CREATE TABLE IF NOT EXISTS dishes (
     id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     category_id bigint NOT NULL REFERENCES categories(id) ON DELETE RESTRICT,
     name text NOT NULL CHECK (btrim(name) <> ''),
@@ -38,7 +38,7 @@ CREATE TABLE dishes (
     menu_version bigint NOT NULL DEFAULT 1 CHECK (menu_version > 0)
 );
 
-CREATE TABLE dish_photos (
+CREATE TABLE IF NOT EXISTS dish_photos (
     id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     dish_id bigint NOT NULL REFERENCES dishes(id) ON DELETE CASCADE,
     object_key text NOT NULL UNIQUE,
@@ -46,9 +46,9 @@ CREATE TABLE dish_photos (
     is_primary boolean NOT NULL DEFAULT false
 );
 
-CREATE UNIQUE INDEX dish_photos_one_primary ON dish_photos (dish_id) WHERE is_primary;
+CREATE UNIQUE INDEX IF NOT EXISTS dish_photos_one_primary ON dish_photos (dish_id) WHERE is_primary;
 
-CREATE TABLE ingredients (
+CREATE TABLE IF NOT EXISTS ingredients (
     id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name text NOT NULL UNIQUE CHECK (btrim(name) <> ''),
     calories numeric(10,2) NOT NULL CHECK (calories >= 0),
@@ -57,25 +57,25 @@ CREATE TABLE ingredients (
     carbohydrates numeric(10,2) NOT NULL CHECK (carbohydrates >= 0)
 );
 
-CREATE TABLE dish_ingredients (
+CREATE TABLE IF NOT EXISTS dish_ingredients (
     dish_id bigint NOT NULL REFERENCES dishes(id) ON DELETE CASCADE,
     ingredient_id bigint NOT NULL REFERENCES ingredients(id) ON DELETE RESTRICT,
     weight numeric(10,2) NOT NULL CHECK (weight > 0),
     PRIMARY KEY (dish_id, ingredient_id)
 );
 
-CREATE TABLE allergens (
+CREATE TABLE IF NOT EXISTS allergens (
     id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name text NOT NULL UNIQUE CHECK (btrim(name) <> '')
 );
 
-CREATE TABLE ingredient_allergens (
+CREATE TABLE IF NOT EXISTS ingredient_allergens (
     ingredient_id bigint NOT NULL REFERENCES ingredients(id) ON DELETE CASCADE,
     allergen_id bigint NOT NULL REFERENCES allergens(id) ON DELETE RESTRICT,
     PRIMARY KEY (ingredient_id, allergen_id)
 );
 
-CREATE TABLE dish_nutrition (
+CREATE TABLE IF NOT EXISTS dish_nutrition (
     dish_id bigint PRIMARY KEY REFERENCES dishes(id) ON DELETE CASCADE,
     is_manual boolean NOT NULL DEFAULT false,
     calories numeric(10,2),
@@ -90,14 +90,14 @@ CREATE TABLE dish_nutrition (
     )
 );
 
-CREATE TABLE admins (
+CREATE TABLE IF NOT EXISTS admins (
     id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     login text NOT NULL UNIQUE CHECK (btrim(login) <> ''),
     password_hash text NOT NULL CHECK (btrim(password_hash) <> ''),
     is_active boolean NOT NULL DEFAULT true
 );
 
-CREATE TABLE menu_drafts (
+CREATE TABLE IF NOT EXISTS menu_drafts (
     id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     author_id bigint NOT NULL REFERENCES admins(id) ON DELETE RESTRICT,
     status text NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published')),
@@ -106,7 +106,7 @@ CREATE TABLE menu_drafts (
     CHECK ((status = 'draft' AND published_at IS NULL) OR (status = 'published' AND published_at IS NOT NULL))
 );
 
-CREATE TABLE menu_draft_items (
+CREATE TABLE IF NOT EXISTS menu_draft_items (
     draft_id bigint NOT NULL REFERENCES menu_drafts(id) ON DELETE CASCADE,
     dish_id bigint NOT NULL REFERENCES dishes(id) ON DELETE RESTRICT,
     price numeric(12,2) NOT NULL CHECK (price > 0),
@@ -115,7 +115,7 @@ CREATE TABLE menu_draft_items (
     PRIMARY KEY (draft_id, dish_id)
 );
 
-CREATE TABLE promotions (
+CREATE TABLE IF NOT EXISTS promotions (
     id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name text NOT NULL CHECK (btrim(name) <> ''),
     discount_percent numeric(5,2) NOT NULL CHECK (discount_percent > 0 AND discount_percent < 100),
@@ -125,13 +125,13 @@ CREATE TABLE promotions (
     CHECK (starts_at < ends_at)
 );
 
-CREATE TABLE promotion_dishes (
+CREATE TABLE IF NOT EXISTS promotion_dishes (
     promotion_id bigint NOT NULL REFERENCES promotions(id) ON DELETE CASCADE,
     dish_id bigint NOT NULL REFERENCES dishes(id) ON DELETE RESTRICT,
     PRIMARY KEY (promotion_id, dish_id)
 );
 
-CREATE TABLE audit_log (
+CREATE TABLE IF NOT EXISTS audit_log (
     id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     admin_id bigint REFERENCES admins(id) ON DELETE RESTRICT,
     entity_type text NOT NULL,

@@ -1,20 +1,20 @@
 BEGIN;
 
-DROP TABLE audit_log;
-DROP TABLE promotion_dishes;
-DROP TABLE promotions;
-DROP TABLE menu_draft_items;
-DROP TABLE menu_drafts;
-DROP TABLE admins;
-DROP TABLE dish_nutrition;
-DROP TABLE ingredient_allergens;
-DROP TABLE allergens;
-DROP TABLE dish_ingredients;
-DROP TABLE ingredients;
-DROP TABLE dish_photos;
-DROP TABLE dishes;
-DROP TABLE categories;
-DROP TABLE restaurant_photos;
-DROP TABLE restaurant;
+DROP TABLE IF EXISTS audit_log;
+DROP TABLE IF EXISTS promotion_dishes;
+DROP TABLE IF EXISTS promotions;
+DROP TABLE IF EXISTS menu_draft_items;
+DROP TABLE IF EXISTS menu_drafts;
+DROP TABLE IF EXISTS admins;
+DROP TABLE IF EXISTS dish_nutrition;
+DROP TABLE IF EXISTS ingredient_allergens;
+DROP TABLE IF EXISTS allergens;
+DROP TABLE IF EXISTS dish_ingredients;
+DROP TABLE IF EXISTS ingredients;
+DROP TABLE IF EXISTS dish_photos;
+DROP TABLE IF EXISTS dishes;
+DROP TABLE IF EXISTS categories;
+DROP TABLE IF EXISTS restaurant_photos;
+DROP TABLE IF EXISTS restaurant;
 
 COMMIT;

@@ -19,12 +19,12 @@ BEGIN
 END;
 $$;
 
-ALTER TABLE restaurant ADD COLUMN phone text, ADD COLUMN email text;
+ALTER TABLE restaurant ADD COLUMN IF NOT EXISTS phone text, ADD COLUMN IF NOT EXISTS email text;
 
 UPDATE restaurant r
 SET phone = (SELECT value FROM restaurant_contacts WHERE restaurant_id = r.id AND type = 'phone'),
     email = (SELECT value FROM restaurant_contacts WHERE restaurant_id = r.id AND type = 'email');
 
-DROP TABLE restaurant_contacts;
+DROP TABLE IF EXISTS restaurant_contacts;
 
 COMMIT;
