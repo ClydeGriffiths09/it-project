@@ -12,7 +12,7 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
-func NewMinioClient(cfg *config.MinioConfig) (*minio.Client, error) {
+func New(cfg *config.MinioConfig) (*minio.Client, error) {
 	client, err := minio.New(net.JoinHostPort(cfg.Host, cfg.Port), &minio.Options{Creds: credentials.NewStaticV4(cfg.User, cfg.Password, ""), Secure: cfg.UseSSL})
 	if err != nil {
 		return nil, fmt.Errorf("minio.NewMinioClient.createClient: %w", err)

@@ -11,7 +11,7 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-func NewRabbitMQConnect(cfg *config.RabbitMQConfig) (*amqp.Connection, error) {
+func New(cfg *config.RabbitMQConfig) (*amqp.Connection, error) {
 	address := &url.URL{Scheme: "amqp", User: url.UserPassword(cfg.User, cfg.Password), Host: net.JoinHostPort(cfg.Host, cfg.Port)}
 	conn, err := amqp.DialConfig(address.String(), amqp.Config{Dial: amqp.DefaultDial(5 * time.Second)})
 	if err != nil {

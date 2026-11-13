@@ -13,7 +13,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func NewPostgresConnect(cfg *config.PostgresConfig) (*sqlx.DB, error) {
+func New(cfg *config.PostgresConfig) (*sqlx.DB, error) {
 	dsn := &url.URL{Scheme: "postgres", User: url.UserPassword(cfg.User, cfg.Password), Host: net.JoinHostPort(cfg.Host, cfg.Port), Path: "/" + cfg.DBName}
 	query := dsn.Query()
 	query.Set("sslmode", cfg.SSLMode)

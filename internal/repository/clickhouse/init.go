@@ -12,7 +12,7 @@ import (
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 )
 
-func NewClickHouseConnect(cfg *config.ClickHouseConfig) (driver.Conn, error) {
+func New(cfg *config.ClickHouseConfig) (driver.Conn, error) {
 	conn, err := clickhouse.Open(&clickhouse.Options{
 		Addr: []string{net.JoinHostPort(cfg.Host, cfg.Port)},
 		Auth: clickhouse.Auth{Database: cfg.DBName, Username: cfg.User, Password: cfg.Password},
