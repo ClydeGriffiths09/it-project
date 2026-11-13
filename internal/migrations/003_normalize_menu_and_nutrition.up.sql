@@ -34,17 +34,30 @@ FROM dish_nutrition
 WHERE is_manual = true
 ON CONFLICT (dish_id) DO NOTHING;
 
-DROP TABLE IF EXISTS dish_nutrition CASCADE;
+ALTER TABLE dish_nutrition DROP CONSTRAINT IF EXISTS dish_nutrition_check;
+
+ALTER TABLE dish_nutrition DROP COLUMN IF EXISTS calories;
+ALTER TABLE dish_nutrition DROP COLUMN IF EXISTS protein;
+ALTER TABLE dish_nutrition DROP COLUMN IF EXISTS fat;
+ALTER TABLE dish_nutrition DROP COLUMN IF EXISTS carbohydrates;
+
+ALTER TABLE dish_nutrition
+    ALTER COLUMN is_manual SET DEFAULT false;
+
+INSERT INTO dish_nutrition (dish_id, is_manual)
+SELECT id, false FROM dishes
+ON CONFLICT (dish_id) DO NOTHING;
 
 CREATE OR REPLACE VIEW dish_nutrition_full AS
 SELECT
     d.id AS dish_id,
-    (dnm.dish_id IS NOT NULL) AS is_manual,
-    CASE WHEN dnm.dish_id IS NOT NULL THEN dnm.calories      ELSE t.calories      END AS calories,
-    CASE WHEN dnm.dish_id IS NOT NULL THEN dnm.protein       ELSE t.protein       END AS protein,
-    CASE WHEN dnm.dish_id IS NOT NULL THEN dnm.fat           ELSE t.fat           END AS fat,
-    CASE WHEN dnm.dish_id IS NOT NULL THEN dnm.carbohydrates ELSE t.carbohydrates END AS carbohydrates
+    dn.is_manual,
+    CASE WHEN dn.is_manual AND dnm.dish_id IS NOT NULL THEN dnm.calories      ELSE t.calories      END AS calories,
+    CASE WHEN dn.is_manual AND dnm.dish_id IS NOT NULL THEN dnm.protein       ELSE t.protein       END AS protein,
+    CASE WHEN dn.is_manual AND dnm.dish_id IS NOT NULL THEN dnm.fat           ELSE t.fat           END AS fat,
+    CASE WHEN dn.is_manual AND dnm.dish_id IS NOT NULL THEN dnm.carbohydrates ELSE t.carbohydrates END AS carbohydrates
 FROM dishes d
+LEFT JOIN dish_nutrition dn         ON dn.dish_id = d.id
 LEFT JOIN dish_nutrition_manual dnm ON dnm.dish_id = d.id
 LEFT JOIN LATERAL (
     SELECT
