@@ -1,6 +1,6 @@
 BEGIN;
 
-CREATE TABLE menu_published (
+CREATE TABLE IF NOT EXISTS menu_published (
     draft_id      bigint PRIMARY KEY REFERENCES menu_drafts(id) ON DELETE CASCADE,
     published_at  timestamptz NOT NULL
 );
@@ -9,9 +9,10 @@ INSERT INTO menu_published (draft_id, published_at)
 SELECT id, published_at
 FROM menu_drafts
 WHERE status = 'published'
-  AND published_at IS NOT NULL;
+  AND published_at IS NOT NULL
+ON CONFLICT (draft_id) DO NOTHING;
 
-ALTER TABLE menu_drafts DROP COLUMN published_at;
+ALTER TABLE menu_drafts DROP COLUMN IF EXISTS published_at;
 
 ALTER TABLE menu_drafts DROP CONSTRAINT IF EXISTS menu_drafts_check;
 ALTER TABLE menu_drafts DROP CONSTRAINT IF EXISTS menu_drafts_status_check;
@@ -19,7 +20,7 @@ ALTER TABLE menu_drafts
     ADD CONSTRAINT menu_drafts_status_check
     CHECK (status IN ('draft', 'published'));
 
-CREATE TABLE dish_nutrition_manual (
+CREATE TABLE IF NOT EXISTS dish_nutrition_manual (
     dish_id        bigint PRIMARY KEY REFERENCES dishes(id) ON DELETE CASCADE,
     calories       numeric(10,2) NOT NULL CHECK (calories >= 0),
     protein        numeric(10,2) NOT NULL CHECK (protein >= 0),
@@ -30,14 +31,14 @@ CREATE TABLE dish_nutrition_manual (
 INSERT INTO dish_nutrition_manual (dish_id, calories, protein, fat, carbohydrates)
 SELECT dish_id, calories, protein, fat, carbohydrates
 FROM dish_nutrition
-WHERE is_manual = true;
+WHERE is_manual = true
+ON CONFLICT (dish_id) DO NOTHING;
 
 ALTER TABLE dish_nutrition DROP CONSTRAINT IF EXISTS dish_nutrition_check;
-ALTER TABLE dish_nutrition
-    DROP COLUMN calories,
-    DROP COLUMN protein,
-    DROP COLUMN fat,
-    DROP COLUMN carbohydrates;
+ALTER TABLE dish_nutrition DROP COLUMN IF EXISTS calories;
+ALTER TABLE dish_nutrition DROP COLUMN IF EXISTS protein;
+ALTER TABLE dish_nutrition DROP COLUMN IF EXISTS fat;
+ALTER TABLE dish_nutrition DROP COLUMN IF EXISTS carbohydrates;
 
 ALTER TABLE dish_nutrition
     ALTER COLUMN is_manual SET DEFAULT false;
